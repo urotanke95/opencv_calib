@@ -19,6 +19,7 @@ vector< vector< Point2d > > img_points;
 
 Mat img1, gray1;
 
+//ディレクトリの中にあるpngとjpg画像を読み込んで、チェッカーボードを探す
 void load_directory(int board_width, int board_height, float square_size, string directory) {
     Size board_size = Size(board_width, board_height);
     int board_n = board_width * board_height;
@@ -73,13 +74,13 @@ void load_directory(int board_width, int board_height, float square_size, string
 
 int main(int argc, char* argv[])
 {
-    //"Calib_Omnidirectional.exe [チェスボードの交点の数(横)] [チェスボードの交点の数(縦)] [1マスの長さ] [キャリブ用画像が入ったディレクトリ]"
-	int board_width = atoi(argv[1]), board_height = atoi(argv[2]);
-	float square_size = atoi(argv[3]);
-	string input_directory = argv[4];
+  //"calibrate.exe [チェスボードの交点の数(横)] [チェスボードの交点の数(縦)] [1マスの長さ] [キャリブ用画像が入ったディレクトリ]"
+  int board_width = atoi(argv[1]), board_height = atoi(argv[2]);
+  float square_size = atoi(argv[3]);
+  string input_directory = argv[4];
 
-	load_directory(board_width, board_height, square_size, input_directory);
-	printf("Starting Calibration\n");
+  load_directory(board_width, board_height, square_size, input_directory);
+  printf("Starting Calibration\n");
 
   //中心射影
   Mat K_pers, D_pers, r_pers, t_pers;
@@ -92,13 +93,13 @@ int main(int argc, char* argv[])
   double rms_fish = fisheye::calibrate(object_points, img_points, img1.size(), K_fish, D_fish, r_fish, t_fish, flags_fish, criteria_fish);
 
   //Omnidirectionalモデル
-	Mat K_om, D_om, r_om, t_om, xi;
-	TermCriteria criteria_om(TermCriteria::COUNT + TermCriteria::EPS, 200, 1e-9);
-	int flags_om = omnidir::CALIB_FIX_SKEW;
-	double rms_om = omnidir::calibrate(object_points, img_points, img1.size(), K_om, xi, D_om, r_om, t_om, flags_om, criteria_om);
+  Mat K_om, D_om, r_om, t_om, xi;
+  TermCriteria criteria_om(TermCriteria::COUNT + TermCriteria::EPS, 200, 1e-9);
+  int flags_om = omnidir::CALIB_FIX_SKEW;
+  double rms_om = omnidir::calibrate(object_points, img_points, img1.size(), K_om, xi, D_om, r_om, t_om, flags_om, criteria_om);
 	
-    cout << "RMS Perspective: " << rms_pers << endl;
-    cout << "RMS Fisheye: " << rms_fish << endl;
-	cout << "RMS Omnidirectional: " << rms_om << endl;
-	return 0;
+  cout << "RMS Perspective: " << rms_pers << endl;
+  cout << "RMS Fisheye: " << rms_fish << endl;
+  cout << "RMS Omnidirectional: " << rms_om << endl;
+  return 0;
 }
